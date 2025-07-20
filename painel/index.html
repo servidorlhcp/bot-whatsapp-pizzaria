@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel da Pizzaria</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fdfaf6; margin: 0; padding: 1rem; }
+    h1 { text-align: center; color: #d62828; }
+    .pedido { border: 1px solid #ccc; border-left: 5px solid #d62828; margin-bottom: 1rem; padding: 1rem; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .pedido strong { color: #333; }
+    .hora { font-size: 0.9rem; color: #777; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>📋 Pedidos da Pizzaria</h1>
+  <div id="painel"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const painel = document.getElementById('painel');
+
+    const renderPedido = (pedido) => {
+      const div = document.createElement('div');
+      div.className = 'pedido';
+      div.innerHTML = `
+        <strong>📞 Cliente:</strong> ${pedido.nome || pedido.numero}<br>
+        <strong>🍕 Pedido:</strong> ${pedido.itens.join(', ')}<br>
+        <strong>📍 Endereço:</strong> ${pedido.endereco}<br>
+        <strong>💳 Pagamento:</strong> ${pedido.pagamento}<br>
+        <strong>⏰ Horário:</strong> ${pedido.horario || 'agora'}<br>
+        <div class="hora">🕒 Recebido em: ${new Date().toLocaleTimeString()}</div>
+      `;
+      painel.prepend(div);
+    };
+
+    socket.on('pedidos', (todos) => {
+      todos.forEach(renderPedido);
+    });
+
+    socket.on('novo-pedido', renderPedido);
+  </script>
+</body>
+</html>
